@@ -1,13 +1,33 @@
-const router = require('koa-router')()
+const router = require("koa-router")();
+const Mysql = require("../db");
 
-router.prefix('/users')
+router.prefix("/users");
 
-router.get('/', function (ctx, next) {
-  ctx.body = 'this is a users response!'
-})
+router.get("/", async (ctx, next) => {
+	try {
+		const users = await Mysql.query("SELECT * FROM users");
+		const resUsers = users.map((item) => {
+			return {
+				id: item.id,
+				name: item.username,
+				email: item.email,
+				createTime: item.created_at,
+			};
+		});
+		ctx.body = {
+			code: 0,
+			data: resUsers,
+			message: "success",
+			success: true,
+		};
+    
+	} catch (err) {
+		ctx.body = {
+			code: -1,
+			message: err.message,
+			success: false,
+		};
+	}
+});
 
-router.get('/bar', function (ctx, next) {
-  ctx.body = 'this is a users/bar response'
-})
-
-module.exports = router
+module.exports = router;
