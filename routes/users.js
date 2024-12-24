@@ -1,6 +1,8 @@
 const router = require("koa-router")();
 const Mysql = require("../db");
+const authenticate = require("../middlewares/authenticate");
 
+router.use(authenticate);
 router.prefix("/users");
 
 router.get("/", async (ctx, next) => {

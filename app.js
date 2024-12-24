@@ -24,7 +24,7 @@ app.use(cors({
   },
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization', 'Accept'],
-  exposeHeaders: ['WWW-Authenticate', 'Server-Authorization']
+  exposeHeaders: ['WWW-Authenticate', 'Server-Authorization','Authorization']
 }));
 
 const index = require('./routes/index')
