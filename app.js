@@ -4,8 +4,10 @@ const app = new Koa()
 const views = require('koa-views')
 const json = require('koa-json')
 const onerror = require('koa-onerror')
-const bodyparser = require('koa-bodyparser')
-const logger = require('koa-logger')
+// const bodyparser = require('koa-bodyparser')
+const { koaBody } = require('koa-body');
+const logger = require('koa-logger');
+const path = require('path');
 
 // cors 中间件应该在最前面配置
 app.use(cors({
@@ -26,18 +28,28 @@ app.use(cors({
   allowHeaders: ['Content-Type', 'Authorization', 'Accept'],
   exposeHeaders: ['WWW-Authenticate', 'Server-Authorization','Authorization']
 }));
-
 const index = require('./routes/index')
 const users = require('./routes/users')
 const noLogin = require('./routes/noLogin')
+const post = require('./routes/post')
+const currency = require('./routes/currency')
 
 // error handler
 onerror(app)
 
 // middlewares
-app.use(bodyparser({
-  enableTypes:['json', 'form', 'text']
-}))
+// 配置请求体来处理multipart/form-data类型的请求（主要用于文件上传）
+app.use(koaBody({
+  multipart: true, // 支持文件上传
+  formidable: {
+    uploadDir: path.join(__dirname, 'uploads/images'), // 设置文件上传目录
+    keepExtensions: true, // 保持文件的后缀
+    maxFieldsSize: 2 * 1024 * 1024, // 文件上传大小限制，例如2MB
+  }
+}));
+// app.use(bodyparser({
+//   enableTypes:['json', 'form', 'text']
+// }))
 app.use(json())
 app.use(logger())
 app.use(require('koa-static')(__dirname + '/public'))
@@ -58,6 +70,8 @@ app.use(async (ctx, next) => {
 app.use(index.routes(), index.allowedMethods())
 app.use(users.routes(), users.allowedMethods())
 app.use(noLogin.routes(), noLogin.allowedMethods())
+app.use(post.routes(), post.allowedMethods())
+app.use(currency.routes(), currency.allowedMethods())
 
 // error-handling
 app.on('error', (err, ctx) => {
